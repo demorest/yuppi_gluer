@@ -6,8 +6,19 @@ scan of an observation and stitches them together in frequency and time to creat
 an observation-long data file in PSRFITS format.  Gaps in the data (in frequency or time)
 will be filled with zeros in the output file.
 
+Install
+---------
+
+Everything is included, so you should just be able to download and run `make`
+
+The code does require the environment variable `YUPPI_DIR` to be set to the 
+directory containing the PSRFITS template (in this case, `yuppi_PSRFITS_v4.3_search_template.txt`).
+
+
 Usage
 ------ 
+
+Running the executable `fil2fits` without any arguments gives all the options:
 
 <pre>
 $ ./fil2fits 
@@ -32,4 +43,24 @@ $ ./fil2fits
   version: 21Apr14
 </pre>
 
+The only required arguments here are the base name for the output PSRFITS file
+and the input SIGPROC filterbank files that you want to combine.  
+
+The optional arguments `src`, `raj`, and `dej` will by default be filled in 
+with the appropriate values from the input filterbank file header string.  They
+are provided here only for convenience in replace missing or incorrect values
+in the filterbank headers.
+
+The `-g` option sets the maximum size of individual output files.  If there is more
+data beyond this value, a new PSRFITS file will be created.  
+
+The input files can be in any order and wildcards may be used.
+
+
+A Few Warnings
+----------------
+
+
+Still To Do
+---------------
 
