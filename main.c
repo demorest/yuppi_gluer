@@ -8,7 +8,7 @@
 #include "main_cmd.h"
 #include "psrfits.h"
 
-#define DEBUG 1
+#define DEBUG 0
 
 int comp_fb(const void *a, const void *b);
 int comp_bin_index(const void *a, const void *b);
