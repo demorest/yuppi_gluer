@@ -60,7 +60,26 @@ The input files can be in any order and wildcards may be used.
 A Few Warnings
 ----------------
 
+1. Currently, gaps between the filterbank data files (in frequency or time) will
+be filled with zeros regardless of how large the gap is.  This will be fixed (see below),
+but for now be careful of accidentally included scans from different days, as the full
+time between them will be filled with zeros.
+
+2. In order to determine which sub-bands are in the same scan, we bin the start times
+of the filterbank files in 10 second chunks to assign scan numbers.  We do this because
+each sub-band file in each scan does not necessarily have exactly the same start time. 
+This means that scans shorter than 10 seconds will not be handled properly.
+
+3. Depending on the number and size of the sub-band files, combining them into one FITS
+file can be a bit slow, but is read/write limited.  Possibly can improve this by chunking 
+the reads and writes a bit better.
+
 
 Still To Do
 ---------------
 
+1. Set maximum gap size for frequency and time.
+
+2. Make the bin time for determining scan number an optional parameter.
+
+3. Look for ways to improve processing speed.
