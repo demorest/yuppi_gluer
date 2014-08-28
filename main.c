@@ -32,13 +32,13 @@ int main(int argc, char *argv[])
   unsigned char **rawdata;
   int headerlen;
   int numfiles = 1, nchans, nbits;
-  int min_mjd, min_sec, imjd, smjd;
+  int min_mjd, min_sec;
   int tmp_mjd, tmp_sec;
   double tmp_offs;
   int spec_per_row, bytes_per_subband, nchans_subband;
   int rownum, breakout, vals_read, specnum, ichan, datidx;
   int fch1idx, fsign,  datidx_start, rawidx_start;
-  double max_freq, min_freq, tmp_min, tmp_max, df, dt, offs;
+  double max_freq, min_freq, tmp_min, tmp_max, df, dt;
   char source_name[80], str_ra[20], str_dec[20];
   char basename[80];
   int ii, status, tmpval;
