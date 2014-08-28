@@ -28,7 +28,7 @@ int psrfits_obs_mode(const char *obs_mode) {
 
 int psrfits_create(struct psrfits *pf) {
     int itmp, *status;
-    long long lltmp;
+    long long lltmp = 0;
     long double ldtmp;
     double dtmp;
     char ctmp[40];
