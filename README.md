@@ -9,9 +9,9 @@ will be filled with zeros in the output file.
 Install
 ---------
 
-Everything is included, so you should just be able to download and run `make`
+You must have [CFITSIO](http://heasarc.gsfc.nasa.gov/fitsio/fitsio.html) installed.
 
-The code does require the environment variable `YUPPI_DIR` to be set to the 
+The code also requires the environment variable `YUPPI_DIR` to be set to the 
 directory containing the PSRFITS template (in this case, `yuppi_PSRFITS_v4.3_search_template.txt`).
 
 
