@@ -10,6 +10,7 @@
 // The following is the template file to use to create a PSRFITS file.
 //#define PSRFITS_SEARCH_TEMPLATE "guppi_PSRFITS_v3.4_search_template.txt"
 #define PSRFITS_SEARCH_TEMPLATE "yuppi_PSRFITS_v4.3_search_template.txt"
+#define PSRFITS_SEARCH_TEMPLATE_32bit "yuppi_PSRFITS_v4.3_32bit_search_template.txt"
 #define PSRFITS_FOLD_TEMPLATE "guppi_PSRFITS_v3.4_fold_template.txt"
 
 struct hdrinfo {

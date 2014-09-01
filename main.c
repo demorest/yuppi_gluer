@@ -8,7 +8,7 @@
 #include "main_cmd.h"
 #include "psrfits.h"
 
-#define DEBUG 0
+#define DEBUG 1
 
 int comp_fb(const void *a, const void *b);
 int comp_bin_index(const void *a, const void *b);
@@ -232,7 +232,13 @@ int main(int argc, char *argv[])
   }
 
   /* Get header parameters and initialize psrfits struct */
+  /* Check that input data are 8-bit or 32-bit */
   nbits = fbs[idx[0]].nbits;
+  if (nbits != 8 && nbits != 32){
+      printf("%d bit data not supported, only 8 or 32-bit.\n", nbits);
+      printf("Exiting ... \n");
+      return 0;
+    }
   dt = fbs[idx[0]].tsamp;
   strcpy(source_name, fbs[idx[0]].source_name);
   coord_double2str(fbs[idx[0]].src_raj, str_ra, 1);   // is_ra = 1
@@ -246,7 +252,7 @@ int main(int argc, char *argv[])
   pf.rows_per_file = (int) ((cmd->outlenGB * 1073741824.0)
 			    / (double) pf.sub.bytes_per_subint);
   nchans_subband = fbs[idx[0]].nchans;
-  bytes_per_subband = spec_per_row * nchans_subband;
+  bytes_per_subband = spec_per_row * nchans_subband * (nbits / 8);
 
   status = psrfits_create(&pf);
   if (status) {
@@ -262,25 +268,28 @@ int main(int argc, char *argv[])
   int *pad_sec, *pad_samp; // array of off_sec and offs_samp
   int skips, pads;
   int *read_dat;
-  unsigned char *tmpdata;
+  unsigned char *tmpdata, *btmpdata;
+  float *ftmpdata, *ftmpdata2;
 
   /* Allocate space for arrays we'll need */
   pad_sec = gen_ivect(maxblocks);
   pad_samp = gen_ivect(maxblocks);
   read_dat = gen_ivect(maxblocks);
   tmpdata = gen_bvect(bytes_per_subband);
+  ftmpdata = gen_fvect(nchans_subband);
+  btmpdata = gen_bvect(nchans_subband * 4);
 
   /* Allocate memory for raw data buffer */
   rawdata = (unsigned char **) malloc(maxblocks * sizeof(unsigned char*));
   for (ii = 0; ii < maxblocks; ii++)
     rawdata[ii] = gen_bvect(bytes_per_subband);
   
-  /* Initialize subint data rows */
-  for(ii=0; ii<nchans; ii++){
+  /* Initialize subint data weights */
+  for(ii=0; ii<nchans; ii++)
     pf.sub.dat_weights[ii] = 0.0;
-    for(specnum=0; specnum<spec_per_row; specnum++)
-      pf.sub.data[specnum * nchans + ii] = (unsigned char) 0;
-  }
+  /* Initialize subint data weights */
+  for(ii=0; ii < pf.sub.bytes_per_subint; ii++)
+      pf.sub.data[ii] = (unsigned char) 0;
   
   rownum = 0;
   datidx = 0;
@@ -342,7 +351,7 @@ int main(int argc, char *argv[])
 	    printf("pad_samp[%d] = %d\n", ii, pad_samp[ii]);
 	    skips = -1 * pad_samp[ii] * nchans_subband;
 	    vals_read = 0;
-	    vals_read = fread(tmpdata, sizeof(unsigned char), skips, 
+	    vals_read = fread(tmpdata, (nbits / 8), skips, 
 			      infiles[idx[ii + istart]]);
 	    if(vals_read < skips){
 	      printf("Read %d padding vals (expected %d) for scan %d, block %d\n",
@@ -419,12 +428,41 @@ int main(int argc, char *argv[])
 
 	/* Loop over all the spectra per row */
 	for (specnum = 0; specnum < spec_per_row; specnum++) {
-	  datidx_start = specnum * nchans + fch1idx;
-	  rawidx_start = specnum * nchans_subband;
-	  for (ichan = 0; ichan < nchans_subband; ichan++) {
-	    pf.sub.data[datidx_start + fsign * ichan] = rawdata[ii][rawidx_start + ichan];
-	    if(srownum==1 && specnum==0)
-	      pf.sub.dat_weights[fch1idx + ichan] = 1.0;
+
+	  /* For 8-bit data, just read directly from rawdata */
+	  if( nbits==8 ){
+	    datidx_start = specnum * nchans + fch1idx;
+	    rawidx_start = specnum * nchans_subband;
+
+	    for (ichan = 0; ichan < nchans_subband; ichan++) {
+	      pf.sub.data[datidx_start + fsign * ichan] = rawdata[ii][rawidx_start + ichan];
+
+	      /* Set the weights on first pass */
+	      if(srownum==1 && specnum==0)
+		pf.sub.dat_weights[fch1idx + ichan] = 1.0;
+	    }
+	  }
+	  
+	  /* For 32 bit floats */
+	  else if( nbits==32 ){
+	    ftmpdata2 = (float *) rawdata[ii] + specnum * nchans_subband;
+	    //printf("%f", ftmpdata2[0]);
+	    for(ichan = 0; ichan < nchans_subband; ichan++){
+	      if( fsign < 0 ){
+		ftmpdata[ichan] = ftmpdata2[nchans_subband - ichan - 1];
+		datidx_start = (specnum * nchans + fch1idx - nchans_subband + 1 ) * 4;
+	      }
+	      else {
+		ftmpdata[ichan] = ftmpdata2[ichan];
+		datidx_start = (specnum * nchans + fch1idx) * 4;
+	      }
+	      /* Set the weights on first pass */
+	      if(srownum==1 && specnum==0)
+		pf.sub.dat_weights[fch1idx + ichan] = 1.0;
+	    }
+	    btmpdata = (unsigned char*) ftmpdata;
+	    for (jj = 0; jj < nchans_subband * 4; jj++) 
+              pf.sub.data[datidx_start + jj] = btmpdata[jj];
 	  }
 	}
       }
