@@ -2,7 +2,7 @@
 
 Name main
 
-Usage "Converts sub-band SIGPROC .fil data into full-band PSRFITS"
+Usage "Combines 8-bit or 32-bit sub-band data in SIGPROC filterbank files to full-band PSRFITS file(s)"
 
 Version [exec date +%d%b%y]
 
