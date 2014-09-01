@@ -4,7 +4,8 @@ yuppi_gluer
 This code takes SIGPROC filterbank files that record a single sub-band of a single
 scan of an observation and stitches them together in frequency and time to create
 an observation-long data file in PSRFITS format.  Gaps in the data (in frequency or time)
-will be filled with zeros in the output file.
+will be filled with zeros in the output file.  Currently will work for input filterbank
+files with 8-bit integer or 32-bit float data.
 
 Install
 ---------
@@ -12,7 +13,8 @@ Install
 You must have [CFITSIO](http://heasarc.gsfc.nasa.gov/fitsio/fitsio.html) installed.
 
 The code also requires the environment variable `YUPPI_DIR` to be set to the 
-directory containing the PSRFITS template (in this case, `yuppi_PSRFITS_v4.3_search_template.txt`).
+directory containing the PSRFITS templates (in this case, `yuppi_PSRFITS_v4.3_search_template.txt`
+and `yuppi_PSRFITS_v4.3_32bit_search_template.txt`).
 
 
 Usage
