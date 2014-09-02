@@ -7,7 +7,7 @@
 # for C++ define  CC = g++
 CC = gcc
 CFLAGS  = -g -Wall -O3 #-I.
-LIBS = -lm -L/usr/lib -lcfitsio
+LIBS = -lm -lcfitsio
 OBJS = main.o chkio.o multifiles.o sigproc_fb2.o main_cmd.o vectors2.o \
 	write_psrfits.o read_psrfits.o polyco.o downsample.o fill_psrfits_struct.o
 
