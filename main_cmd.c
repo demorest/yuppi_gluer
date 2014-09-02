@@ -828,7 +828,7 @@ void
 usage(void)
 {
   fprintf(stderr,"   -o outfile [-g outlenGB] [-src src_name] [-raj raj] [-dej dej] [--] infiles ...\n");
-  fprintf(stderr,"      Converts sub-band SIGPROC .fil data into full-band PSRFITS\n");
+  fprintf(stderr,"      Combines 8-bit or 32-bit sub-band data in SIGPROC filterbank files to full-band PSRFITS file(s)\n");
   fprintf(stderr,"         -o: Name of the output psrfits file\n");
   fprintf(stderr,"             1 char* value\n");
   fprintf(stderr,"         -g: Approx length in GB of output data files\n");
@@ -845,7 +845,7 @@ usage(void)
   fprintf(stderr,"             default: `0.00'\n");
   fprintf(stderr,"    infiles: Data files\n");
   fprintf(stderr,"             1...16384 values\n");
-  fprintf(stderr,"  version: 21Apr14\n");
+  fprintf(stderr,"  version: 31Aug14\n");
   fprintf(stderr,"  ");
   exit(EXIT_FAILURE);
 }

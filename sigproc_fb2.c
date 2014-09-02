@@ -6,12 +6,11 @@
 #define BLOCKLEN   512
 
 /* All of the following have an _st to indicate static */
-static sigprocfb *fb_st;
-static long long *numpts_st, *padpts_st, N_st;
-static int *numblks_st, need_byteswap_st = 0, sampperblk_st;
+static long long *padpts_st;
+static int need_byteswap_st = 0, sampperblk_st;
 static int numchan_st, ptsperblk_st, bytesperpt_st = 1, bytesperblk_st;
-static double *times_st, *mjds_st, Tdiam=100.0;
-static double *elapsed_st, T_st, dt_st;
+static double Tdiam=100.0;
+static double dt_st;
 static double *startblk_st, *endblk_st;
 static unsigned char padvals[MAXNUMCHAN], padval = 128;
 static int rawdatabuffer[MAXNUMCHAN * BLOCKLEN];

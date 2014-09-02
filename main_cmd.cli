@@ -1,0 +1,31 @@
+# Admin data
+
+Name main
+
+Usage "Combines 8-bit or 32-bit sub-band data in SIGPROC filterbank files to full-band PSRFITS file(s)"
+
+Version [exec date +%d%b%y]
+
+Commandline full_cmd_line
+
+# Options (in order you want them to appear)
+
+String  -o      outfile {Name of the output psrfits file} \
+                        -m
+
+Int 	-g 	outlenGB  {Approx length in GB of output data files} \
+			-r 1 1000  -d 10
+
+String  -src    src_name {Source Name} \
+                         -d "BLANK"
+
+Double  -raj    raj {Source RA  (J2000) in hhmmss.ss} \
+                    -r 0 240000.00 -d 0.00
+
+Double  -dej    dej {Source Dec (J2000) in ddmmss.ss} \
+                    -r -900000.00 900000.00 -d 0.00
+
+# Rest of command line:
+
+Rest 		infiles {Data files} \
+			-c 1 16384

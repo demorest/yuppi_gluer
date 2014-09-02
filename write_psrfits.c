@@ -28,7 +28,7 @@ int psrfits_obs_mode(const char *obs_mode) {
 
 int psrfits_create(struct psrfits *pf) {
     int itmp, *status;
-    long long lltmp;
+    long long lltmp = 0;
     long double ldtmp;
     double dtmp;
     char ctmp[40];
@@ -101,8 +101,13 @@ int psrfits_create(struct psrfits *pf) {
 #endif
     printf("Opening file '%s' ", pf->filename);
     if (mode==search) { 
-        printf("in search mode.\n");
-        sprintf(template_file, "%s/%s", template_dir, PSRFITS_SEARCH_TEMPLATE);
+        printf("in search mode\n");
+	if (hdr->nbits==32){
+	  printf("Input data is 32-bit floats.\n");
+	  sprintf(template_file, "%s/%s", template_dir, PSRFITS_SEARCH_TEMPLATE_32bit);
+	}
+	else
+	  sprintf(template_file, "%s/%s", template_dir, PSRFITS_SEARCH_TEMPLATE);
     } else if (mode==fold) { 
         printf("in fold mode.\n");
         sprintf(template_file, "%s/%s", template_dir, PSRFITS_FOLD_TEMPLATE);
@@ -279,7 +284,8 @@ int psrfits_create(struct psrfits *pf) {
         
         if (mode==search) {
             lltmp = out_nsblk;
-            lltmp = (lltmp * hdr->nbits * out_nchan * out_npol) / 8L;
+            //lltmp = (lltmp * hdr->nbits * out_nchan * out_npol) / 8L;
+	    lltmp = (lltmp * out_nchan * out_npol);
         } else if (mode==fold)
             lltmp = (hdr->nbin * out_nchan * out_npol);
         fits_modify_vector_len(pf->fptr, 17, lltmp, status); // DATA
@@ -290,7 +296,7 @@ int psrfits_create(struct psrfits *pf) {
             sprintf(ctmp, "(%d,%d,%d,1)", hdr->nbin, out_nchan, out_npol);
         fits_update_key(pf->fptr, TSTRING, "TDIM17", ctmp, NULL, status);
     }
-
+    
     fits_flush_file(pf->fptr, status);
     
     return *status;
@@ -332,18 +338,14 @@ int psrfits_write_subint(struct psrfits *pf) {
         psrfits_create(pf);
     }
     
-    //printf("psrfits write debug 2\n"); // DEBUG
-    
     row = pf->rownum;
     fits_write_col(pf->fptr, TDOUBLE, 1, row, 1, 1, &(sub->tsubint), status);
     fits_write_col(pf->fptr, TDOUBLE, 2, row, 1, 1, &(sub->offs), status);
     fits_write_col(pf->fptr, TDOUBLE, 3, row, 1, 1, &(sub->lst), status);
     fits_write_col(pf->fptr, TDOUBLE, 4, row, 1, 1, &(sub->ra), status);
     fits_write_col(pf->fptr, TDOUBLE, 5, row, 1, 1, &(sub->dec), status);
-    //printf("psrfits write debug 2.1\n"); // DEBUG
     fits_write_col(pf->fptr, TDOUBLE, 6, row, 1, 1, &(sub->glon), status);
     fits_write_col(pf->fptr, TDOUBLE, 7, row, 1, 1, &(sub->glat), status);
-    //printf("psrfits write debug 2.2\n"); // DEBUG
     ftmp = (float) sub->feed_ang;
     fits_write_col(pf->fptr, TFLOAT, 8, row, 1, 1, &ftmp, status);
     ftmp = (float) sub->pos_ang;
@@ -353,29 +355,23 @@ int psrfits_write_subint(struct psrfits *pf) {
     ftmp = (float) sub->tel_az;
     fits_write_col(pf->fptr, TFLOAT, 11, row, 1, 1, &ftmp, status);
     ftmp = (float) sub->tel_zen;
-    //printf("psrfits write debug 2.3\n"); // DEBUG
     fits_write_col(pf->fptr, TFLOAT, 12, row, 1, 1, &ftmp, status);
     fits_write_col(pf->fptr, TFLOAT, 13, row, 1, nchan, sub->dat_freqs, status);
     fits_write_col(pf->fptr, TFLOAT, 14, row, 1, nchan, sub->dat_weights, status);
     fits_write_col(pf->fptr, TFLOAT, 15, row, 1, nivals, sub->dat_offsets, status);
     fits_write_col(pf->fptr, TFLOAT, 16, row, 1, nivals, sub->dat_scales, status);
-    //printf("psrfits write debug 2.4\n"); // DEBUG
     if (mode==search) {
-      //printf("psrfits write debug 2.5\n"); // DEBUG
       if (hdr->nbits==4) pf_8bit_to_4bit(pf);
-      //printf("psrfits write debug 2.6\n"); // DEBUG
-      //fits_write_col(pf->fptr, TBYTE, 17, row, 1, out_nbytes, 
-      //     sub->rawdata, status);
-      fits_write_col(pf->fptr, TBYTE, 17, row, 1, out_nbytes,
-                     sub->data, status);
-      //printf("status = %d\n", *status); // DEBUG
+      if (hdr->nbits==32)
+	fits_write_col(pf->fptr, TFLOAT, 17, row, 1, out_nbytes/sizeof(float), sub->data, status);
+      else
+	fits_write_col(pf->fptr, TBYTE, 17, row, 1, out_nbytes, sub->data, status);
+      
     } else if (mode==fold) { 
       // Fold mode writes floats for now..
       fits_write_col(pf->fptr, TFLOAT, 17, row, 1, out_nbytes/sizeof(float), 
 		     sub->data, status);
     }
-    //printf("psrfits write debug 3\n"); // DEBUG
-
     // Flush the buffers if not finished with the file
     // Note:  this use is not entirely in keeping with the CFITSIO
     //        documentation recommendations.  However, manually 
