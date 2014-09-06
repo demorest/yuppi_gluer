@@ -118,7 +118,7 @@ void fill_psrfits_struct(int numbits, struct psrfits *pf, float dt, char* source
     pf->sub.dat_weights = gen_fvect(pf->hdr.nchan);
     for (ii = 0; ii < pf->hdr.nchan; ii++) {
         pf->sub.dat_freqs[ii] = lofreq + ii * pf->hdr.df;
-        //pf->sub.dat_weights[ii] = 1.0;
+        pf->sub.dat_weights[ii] = 1.0;
     }
 
     // The following are re-set to try to preserve the band shape later
@@ -126,7 +126,7 @@ void fill_psrfits_struct(int numbits, struct psrfits *pf, float dt, char* source
     pf->sub.dat_scales = gen_fvect(pf->hdr.nchan * pf->hdr.npol);
     for (ii = 0; ii < pf->hdr.nchan * pf->hdr.npol; ii++) {
         pf->sub.dat_offsets[ii] = 0.0;
-        pf->sub.dat_scales[ii] = 1.0;
+        pf->sub.dat_scales[ii] = 1.0; 
     }
 
     // This is the raw data block that will be updated 
