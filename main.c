@@ -284,10 +284,15 @@ int main(int argc, char *argv[])
   for (ii = 0; ii < maxblocks; ii++)
     rawdata[ii] = gen_bvect(bytes_per_subband);
   
-  /* Initialize subint data weights */
-  for(ii=0; ii<nchans; ii++)
+  /* data weights, offsets, and scales are initialized */
+  /* in fill_psrfits_struct, which sets all weights to */
+  /* be 1.  Here we initialize them to 0, then turn    */
+  /* them on when there is data present. Will probably */
+  /* change this soon.                                 */
+  for(ii=0; ii<nchans; ii++) {
     pf.sub.dat_weights[ii] = 0.0;
-  /* Initialize subint data weights */
+  }
+  /* Initialize subint data  */
   for(ii=0; ii < pf.sub.bytes_per_subint; ii++)
       pf.sub.data[ii] = (unsigned char) 0;
   
@@ -439,7 +444,7 @@ int main(int argc, char *argv[])
 
 	      /* Set the weights on first pass */
 	      if(srownum==1 && specnum==0)
-		pf.sub.dat_weights[fch1idx + ichan] = 1.0;
+		pf.sub.dat_weights[datidx_start/4 + ichan] = 1.0; // SET WEIGHT
 	    }
 	  }
 	  
@@ -457,8 +462,9 @@ int main(int argc, char *argv[])
 		datidx_start = (specnum * nchans + fch1idx) * 4;
 	      }
 	      /* Set the weights on first pass */
-	      if(srownum==1 && specnum==0)
-		pf.sub.dat_weights[fch1idx + ichan] = 1.0;
+	      if(srownum==1 && specnum==0){
+		pf.sub.dat_weights[datidx_start/4 + ichan] = 1.0; // SET WEIGHT
+	      }
 	    }
 	    btmpdata = (unsigned char*) ftmpdata;
 	    for (jj = 0; jj < nchans_subband * 4; jj++) 
