@@ -283,18 +283,20 @@ int main(int argc, char *argv[])
   rawdata = (unsigned char **) malloc(maxblocks * sizeof(unsigned char*));
   for (ii = 0; ii < maxblocks; ii++)
     rawdata[ii] = gen_bvect(bytes_per_subband);
-  
+
+
   /* data weights, offsets, and scales are initialized */
   /* in fill_psrfits_struct, which sets all weights to */
   /* be 1.  Here we initialize them to 0, then turn    */
   /* them on when there is data present. Will probably */
   /* change this soon.                                 */
-  for(ii=0; ii<nchans; ii++) {
+  /*for(ii=0; ii<nchans; ii++) {
     pf.sub.dat_weights[ii] = 0.0;
-  }
+    }*/
   /* Initialize subint data  */
-  for(ii=0; ii < pf.sub.bytes_per_subint; ii++)
+  /*for(ii=0; ii < pf.sub.bytes_per_subint; ii++)
       pf.sub.data[ii] = (unsigned char) 0;
+  */
   
   rownum = 0;
   datidx = 0;
@@ -308,6 +310,19 @@ int main(int argc, char *argv[])
     istart = sidx[iscan];
     srownum = 0;
     breakout = 0;
+
+    /* data weights, offsets, and scales are initialized */
+    /* in fill_psrfits_struct, which sets all weights to */
+    /* be 1.  Here we initialize them to 0, then turn    */
+    /* them on when there is data present. Will probably */
+    /* change this soon.                                 */
+    for(ii=0; ii<nchans; ii++) {
+      pf.sub.dat_weights[ii] = 0.0;
+    }
+    /* Initialize subint data  */
+    for(ii=0; ii < pf.sub.bytes_per_subint; ii++)
+      pf.sub.data[ii] = (unsigned char) 0;
+
     
     /* Initialize some useful arrays and clear rawdata buffer */
     for(ii=0; ii<nblocks; ii++){
